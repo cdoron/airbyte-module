@@ -49,10 +49,10 @@ class GenericConnector:
     '''
     Translate the name of the temporary file in the host to the name of the same file
     in the container.
-    For instance, it the path is '/tmp/tmp12345', return '/json/tmp12345'.
+    For instance, it the path is '/tmp/tmp12345', return '/local/tmp12345'.
     '''
     def name_in_container(self, path):
-        return path.replace(self.workdir, '/json', 1)
+        return path.replace(self.workdir, '/local', 1)
 
     '''
     Extract only the relevant data in "RECORD" lines returned by an Airbyte read operation.
@@ -96,13 +96,13 @@ class GenericConnector:
 
     '''
     Run a docker container from the connector image.
-    Mount the workdir on /json. Remove the container after done.
+    Mount the workdir on /local. Remove the container after done.
     '''
     def run_container(self, command):
         self.logger.debug("running command: " + command)
         try:
             reply = self.client.containers.run(self.connector, command,
-                volumes=[self.workdir + ':/json'], network_mode='host',
+                volumes=[self.workdir + ':/local'], network_mode='host',
                 remove=True, stream=True)
             return self.filter_reply(reply)
         except docker.errors.DockerException as e:
